@@ -1,0 +1,50 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"compilerOptions": {
+		// Базовые настройки для ESM модуля
+		"target": "ES2023",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"lib": ["ES2023"],
+
+		// Строгие настройки TypeScript
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+
+		// Строгая типизация
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"strictNullChecks": true,
+		"strictFunctionTypes": true,
+		"strictBindCallApply": true,
+		"strictPropertyInitialization": true,
+		"noImplicitThis": true,
+		"alwaysStrict": true,
+
+		// Настройки для сборки
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"baseUrl": "./",
+		"declaration": true,
+		"declarationMap": true,
+		"sourceMap": true,
+
+		// Настройки путей для алиасов
+		"paths": {
+			"src/*": ["src/*"]
+		},
+
+		// Дополнительные настройки
+		"allowSyntheticDefaultImports": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true
+	},
+	"include": ["src/**/*", "**/*.d.ts"],
+	"exclude": ["node_modules", "dist", "coverage"]
+}
