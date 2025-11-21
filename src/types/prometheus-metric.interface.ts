@@ -10,4 +10,3 @@ export interface PrometheusMetricConfig {
 	buckets?: number[]; // для histogram
 	percentiles?: number[]; // для summary
 }
-

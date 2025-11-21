@@ -24,4 +24,3 @@ export interface DatabaseMetricsSet {
 	databaseConnectionsIdle: Gauge;
 	databaseErrorsTotal: Counter;
 }
-

@@ -8,4 +8,3 @@ export interface MetricWrapperOptions {
 	histogramLabels?: Record<string, string> | (() => Record<string, string>);
 	onError?: (error: Error) => void;
 }
-

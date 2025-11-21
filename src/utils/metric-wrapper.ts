@@ -1,4 +1,5 @@
 import { createMetricTimer } from "src/utils/metric-timer";
+
 import type { MetricWrapperOptions } from "src/types/metric-wrapper.interface";
 
 // Обернуть функцию для автоматического сбора метрик

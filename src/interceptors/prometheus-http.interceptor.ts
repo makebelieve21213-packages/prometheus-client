@@ -46,7 +46,7 @@ export default class PrometheusHttpInterceptor implements NestInterceptor {
 			this.httpRequestDuration = null as unknown as Histogram;
 			this.httpRequestSize = null as unknown as Histogram;
 			this.httpResponseSize = null as unknown as Histogram;
-			
+
 			return;
 		}
 

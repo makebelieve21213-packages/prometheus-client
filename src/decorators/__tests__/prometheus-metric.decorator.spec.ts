@@ -3,6 +3,7 @@ import {
 	PrometheusMetric,
 	PROMETHEUS_METRIC_METADATA_KEY,
 } from "src/decorators/prometheus-metric.decorator";
+
 import type { PrometheusMetricConfig } from "src/types/prometheus-metric.interface";
 
 describe("PrometheusMetric", () => {
