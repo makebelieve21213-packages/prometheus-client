@@ -24,6 +24,12 @@ export default class PrometheusService implements PrometheusClientContract {
 
 	// Создание Counter метрики
 	createCounter<T extends string = string>(config: CounterConfig<T>): Counter<string> {
+		// Проверяем, существует ли метрика с таким именем
+		const existingMetric = this.registry.getSingleMetric(config.name);
+		if (existingMetric && existingMetric instanceof Counter) {
+			return existingMetric as Counter<string>;
+		}
+
 		const counterConfig: {
 			name: string;
 			help: string;
@@ -43,6 +49,12 @@ export default class PrometheusService implements PrometheusClientContract {
 
 	// Создание Histogram метрики
 	createHistogram<T extends string = string>(config: HistogramConfig<T>): Histogram<string> {
+		// Проверяем, существует ли метрика с таким именем
+		const existingMetric = this.registry.getSingleMetric(config.name);
+		if (existingMetric && existingMetric instanceof Histogram) {
+			return existingMetric as Histogram<string>;
+		}
+
 		const histogramConfig: {
 			name: string;
 			help: string;
@@ -63,6 +75,12 @@ export default class PrometheusService implements PrometheusClientContract {
 
 	// Создание Gauge метрики
 	createGauge<T extends string = string>(config: GaugeConfig<T>): Gauge<string> {
+		// Проверяем, существует ли метрика с таким именем
+		const existingMetric = this.registry.getSingleMetric(config.name);
+		if (existingMetric && existingMetric instanceof Gauge) {
+			return existingMetric as Gauge<string>;
+		}
+
 		const gaugeConfig: {
 			name: string;
 			help: string;
@@ -82,6 +100,12 @@ export default class PrometheusService implements PrometheusClientContract {
 
 	// Создание Summary метрики
 	createSummary<T extends string = string>(config: SummaryConfig<T>): Summary<string> {
+		// Проверяем, существует ли метрика с таким именем
+		const existingMetric = this.registry.getSingleMetric(config.name);
+		if (existingMetric && existingMetric instanceof Summary) {
+			return existingMetric as Summary<string>;
+		}
+
 		const summaryConfig: {
 			name: string;
 			help: string;

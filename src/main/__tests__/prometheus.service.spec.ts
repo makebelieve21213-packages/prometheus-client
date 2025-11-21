@@ -51,6 +51,23 @@ describe("PrometheusService", () => {
 			expect(metric).toBeDefined();
 			expect(metric).toBe(counter);
 		});
+
+		it("should return existing counter if metric already exists", () => {
+			const counter1 = service.createCounter({
+				name: "test_existing_counter",
+				help: "Test existing counter",
+			});
+
+			// Попытка создать метрику с тем же именем
+			const counter2 = service.createCounter({
+				name: "test_existing_counter",
+				help: "Test existing counter",
+			});
+
+			// Должна вернуться та же метрика
+			expect(counter1).toBe(counter2);
+			expect(counter2).toBeInstanceOf(Counter);
+		});
 	});
 
 	describe("createHistogram", () => {
@@ -83,6 +100,23 @@ describe("PrometheusService", () => {
 			expect(metric).toBeDefined();
 			expect(metric).toBe(histogram);
 		});
+
+		it("should return existing histogram if metric already exists", () => {
+			const histogram1 = service.createHistogram({
+				name: "test_existing_histogram",
+				help: "Test existing histogram",
+			});
+
+			// Попытка создать метрику с тем же именем
+			const histogram2 = service.createHistogram({
+				name: "test_existing_histogram",
+				help: "Test existing histogram",
+			});
+
+			// Должна вернуться та же метрика
+			expect(histogram1).toBe(histogram2);
+			expect(histogram2).toBeInstanceOf(Histogram);
+		});
 	});
 
 	describe("createGauge", () => {
@@ -113,6 +147,23 @@ describe("PrometheusService", () => {
 			const metric = service.getRegistry().getSingleMetric("test_gauge_labels");
 			expect(metric).toBeDefined();
 			expect(metric).toBe(gauge);
+		});
+
+		it("should return existing gauge if metric already exists", () => {
+			const gauge1 = service.createGauge({
+				name: "test_existing_gauge",
+				help: "Test existing gauge",
+			});
+
+			// Попытка создать метрику с тем же именем
+			const gauge2 = service.createGauge({
+				name: "test_existing_gauge",
+				help: "Test existing gauge",
+			});
+
+			// Должна вернуться та же метрика
+			expect(gauge1).toBe(gauge2);
+			expect(gauge2).toBeInstanceOf(Gauge);
 		});
 	});
 
@@ -160,6 +211,23 @@ describe("PrometheusService", () => {
 			const metric = service.getRegistry().getSingleMetric("test_summary_labels");
 			expect(metric).toBeDefined();
 			expect(metric).toBe(summary);
+		});
+
+		it("should return existing summary if metric already exists", () => {
+			const summary1 = service.createSummary({
+				name: "test_existing_summary",
+				help: "Test existing summary",
+			});
+
+			// Попытка создать метрику с тем же именем
+			const summary2 = service.createSummary({
+				name: "test_existing_summary",
+				help: "Test existing summary",
+			});
+
+			// Должна вернуться та же метрика
+			expect(summary1).toBe(summary2);
+			expect(summary2).toBeInstanceOf(Summary);
 		});
 	});
 
