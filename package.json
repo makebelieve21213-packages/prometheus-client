@@ -1,6 +1,6 @@
 {
 	"name": "@makebelieve21213-packages/prometheus-client",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Prometheus client for NestJS with metrics collection and export",
 	"type": "module",
 	"main": "./dist/index.js",

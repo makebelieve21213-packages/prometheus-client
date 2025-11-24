@@ -1,79 +1,68 @@
-# @makebelieve21213-packages/prometheus-client - LLM Context
+# @makebelieve21213-packages/prometheus-client - Документация для ИИ
 
 ## Краткое описание
+
 ESM пакет для работы с Prometheus метриками в NestJS приложениях. Интегрируется с @willsoto/nestjs-prometheus для автоматического экспорта метрик на `/metrics` endpoint. Предоставляет type-safe API для создания Counter, Histogram, Gauge и Summary метрик. **Global Module** - регистрируется один раз и доступен во всех модулях. Включает специализированные сервисы для HTTP, Kafka и AI метрик, автоматический HTTP интерцептор, декораторы для трекинга и утилиты для работы с метриками.
 
-## Технические детали пакета
-- **Тип пакета**: ESM (`"type": "module"` в package.json)
-- **Сборка**: TypeScript → tsc → tsc-alias → tsc-esm-fix
-- **Module Resolution**: `bundler` (для гибкой работы с ESM и post-build инструментами)
-- **Target**: ES2023
-- **Module**: ESNext
+## Архитектура
 
-## Архитектура пакета
+Пакет предоставляет:
+- **PrometheusClientModule** - глобальный NestJS модуль для регистрации
+- **PrometheusService** - базовый сервис для создания метрик
+- **HttpMetricsService** - сервис для HTTP метрик
+- **KafkaMetricsService** - сервис для Kafka метрик
+- **AiMetricsService** - сервис для AI метрик
+- **PrometheusHttpInterceptor** - HTTP интерцептор для автоматического сбора метрик
+- **Декораторы** - @TrackDuration, @TrackCounter, @PrometheusMetric
+
+## Структура пакета
 
 ```
-prometheus-client/
-├── src/
-│   ├── main/
-│   │   ├── prometheus.module.ts          # NestJS модуль (Global)
-│   │   ├── prometheus.service.ts         # Базовый сервис для работы с метриками
-│   │   └── __tests__/
-│   │       ├── prometheus.module.spec.ts
-│   │       └── prometheus.service.spec.ts
-│   ├── services/
-│   │   ├── http-metrics.service.ts       # Сервис для HTTP метрик
-│   │   ├── kafka-metrics.service.ts      # Сервис для Kafka метрик
-│   │   ├── ai-metrics.service.ts         # Сервис для AI метрик
-│   │   └── __tests__/
-│   │       ├── http-metrics.service.spec.ts
-│   │       ├── kafka-metrics.service.spec.ts
-│   │       └── ai-metrics.service.spec.ts
-│   ├── interceptors/
-│   │   ├── prometheus-http.interceptor.ts # HTTP интерцептор для автоматического сбора метрик
-│   │   └── __tests__/
-│   │       └── prometheus-http.interceptor.spec.ts
-│   ├── decorators/
-│   │   ├── prometheus-metric.decorator.ts # Декоратор для кастомных метрик
-│   │   ├── track-duration.decorator.ts   # Декоратор для измерения времени
-│   │   ├── track-counter.decorator.ts    # Декоратор для подсчета вызовов
-│   │   └── __tests__/
-│   │       ├── prometheus-metric.decorator.spec.ts
-│   │       ├── track-duration.decorator.spec.ts
-│   │       └── track-counter.decorator.spec.ts
-│   ├── utils/
-│   │   ├── injection-keys.ts            # Injection tokens для DI
-│   │   ├── metric-labels.ts              # Утилиты для работы с метками
-│   │   ├── metric-registry.ts           # Реестр предопределенных метрик
-│   │   ├── metric-sets.ts               # Предопределенные наборы метрик
-│   │   ├── metric-timer.ts              # Утилита для измерения времени
-│   │   ├── metric-wrapper.ts            # Обертка для функций с метриками
-│   │   └── __tests__/
-│   │       ├── injection-keys.spec.ts
-│   │       ├── metric-labels.spec.ts
-│   │       ├── metric-registry.spec.ts
-│   │       ├── metric-sets.spec.ts
-│   │       ├── metric-timer.spec.ts
-│   │       └── metric-wrapper.spec.ts
-│   ├── types/
-│   │   ├── module-options.interface.ts  # Опции конфигурации модуля
-│   │   ├── prometheus.interface.ts      # Интерфейс PrometheusClientContract
-│   │   ├── metric-sets.interface.ts     # Интерфейсы наборов метрик (HttpMetricsSet, KafkaMetricsSet, DatabaseMetricsSet)
-│   │   ├── metric-wrapper.interface.ts  # Интерфейс опций обертки функций (MetricWrapperOptions)
-│   │   └── prometheus-metric.interface.ts # Интерфейс конфигурации декоратора метрик (PrometheusMetricConfig)
-│   └── index.ts                         # Экспорты пакета
-├── dist/                                # Скомпилированный код
+src/
+├── main/
+│   ├── prometheus.module.ts            # NestJS модуль (Global)
+│   └── prometheus.service.ts           # Базовый сервис для работы с метриками
+├── services/
+│   ├── http-metrics.service.ts         # Сервис для HTTP метрик
+│   ├── kafka-metrics.service.ts        # Сервис для Kafka метрик
+│   └── ai-metrics.service.ts           # Сервис для AI метрик
+├── interceptors/
+│   └── prometheus-http.interceptor.ts  # HTTP интерцептор для автоматического сбора метрик
+├── decorators/
+│   ├── prometheus-metric.decorator.ts  # Декоратор для кастомных метрик
+│   ├── track-duration.decorator.ts     # Декоратор для измерения времени
+│   └── track-counter.decorator.ts      # Декоратор для подсчета вызовов
+├── utils/
+│   ├── injection-keys.ts               # Injection tokens для DI
+│   ├── metric-labels.ts                # Утилиты для работы с метками
+│   ├── metric-registry.ts              # Реестр предопределенных метрик
+│   ├── metric-sets.ts                  # Предопределенные наборы метрик
+│   ├── metric-timer.ts                 # Утилита для измерения времени
+│   └── metric-wrapper.ts               # Обертка для функций с метриками
+├── types/
+│   ├── module-options.interface.ts     # Опции конфигурации модуля
+│   ├── prometheus.interface.ts         # Интерфейс PrometheusClientContract
+│   ├── metric-sets.interface.ts        # Интерфейсы наборов метрик
+│   ├── metric-wrapper.interface.ts     # Интерфейс опций обертки функций
+│   └── prometheus-metric.interface.ts  # Интерфейс конфигурации декоратора метрик
+└── index.ts                            # Экспорты пакета
 ```
 
-## Основные концепции
+## Основные компоненты
 
-### 1. PrometheusService (базовый сервис)
-- Реализует интерфейс `PrometheusClientContract`
-- Использует глобальный `Registry` от `prom-client` для совместимости с @willsoto/nestjs-prometheus
-- Методы создания метрик: `createCounter()`, `createHistogram()`, `createGauge()`, `createSummary()`
-- Метод получения Registry: `getRegistry()`
+### PrometheusService (базовый сервис)
 
-### 2. Специализированные сервисы
+Использует глобальный `Registry` от `prom-client` для совместимости с @willsoto/nestjs-prometheus.
+
+Методы:
+- `createCounter(config)` - создание Counter метрики
+- `createHistogram(config)` - создание Histogram метрики
+- `createGauge(config)` - создание Gauge метрики
+- `createSummary(config)` - создание Summary метрики
+- `getRegistry()` - получение Registry
+
+### Специализированные сервисы
+
 - **HttpMetricsService** - автоматически создает и управляет HTTP метриками
   - `http_requests_total` (Counter)
   - `http_request_duration_seconds` (Histogram)
@@ -91,294 +80,34 @@ prometheus-client/
   - `ai_requests_total` (Counter)
   - `ai_request_duration_seconds` (Histogram)
 
-### 3. PrometheusHttpInterceptor
-- Автоматически собирает HTTP метрики для всех запросов
-- Настраивается через `httpMetrics` в `PrometheusModuleOptions`
-- Поддерживает игнорирование путей и методов
-- Собирает метрики: количество запросов, длительность, размер запроса/ответа
+### PrometheusHttpInterceptor
 
-### 4. Декораторы
+Автоматически собирает HTTP метрики для всех запросов. Настраивается через `httpMetrics` в `PrometheusModuleOptions`. Поддерживает игнорирование путей и методов.
+
+### Декораторы
+
 - **@TrackDuration** - автоматически измеряет время выполнения метода
 - **@TrackCounter** - автоматически подсчитывает вызовы метода
 - **@PrometheusMetric** - определяет кастомную метрику для метода
 
-### 5. PrometheusClientModule (Global Module)
-- Помечен как `@Global()` - доступен во всех модулях без повторного импорта
-- Регистрация через `forRootAsync()` с `useFactory`
-- Использует `PROMETHEUS_MODULE_OPTIONS` injection token для передачи конфигурации
-- Интегрируется с `@willsoto/nestjs-prometheus` для экспорта метрик на `/metrics`
-- Экспортирует `PrometheusService`, `HttpMetricsService`, `KafkaMetricsService`, `AiMetricsService`, `MetricRegistry`
+### PrometheusClientModule (Global Module)
 
-### 6. Типы метрик
+Помечен как `@Global()` - доступен во всех модулях без повторного импорта. Регистрация через `forRootAsync()` с `useFactory`. Интегрируется с `@willsoto/nestjs-prometheus` для экспорта метрик на `/metrics`. Экспортирует `PrometheusService`, `HttpMetricsService`, `KafkaMetricsService`, `AiMetricsService`, `MetricRegistry`.
+
+## Типы метрик
+
 - **Counter** - счетчик, увеличивается на 1 или больше
 - **Histogram** - гистограмма для измерения распределения значений (например, время выполнения)
 - **Gauge** - значение, которое может увеличиваться и уменьшаться
 - **Summary** - суммарная метрика для вычисления квантилей
 
-### 7. Registry
-- Используется глобальный Registry от `prom-client` (`register`)
-- Это гарантирует, что все метрики будут экспортироваться на `/metrics` endpoint через @willsoto/nestjs-prometheus
-- Все метрики регистрируются в одном Registry для централизованного экспорта
+## Registry
 
-### 8. MetricRegistry
-- Управляет предопределенными метриками
-- Регистрирует метрики при инициализации модуля через `predefinedMetrics` в конфигурации
-- Предоставляет методы: `getCounter()`, `getHistogram()`, `getGauge()`, `getSummary()`
+Используется глобальный Registry от `prom-client` (`register`). Это гарантирует, что все метрики будут экспортироваться на `/metrics` endpoint через @willsoto/nestjs-prometheus. Все метрики регистрируются в одном Registry для централизованного экспорта.
 
-## Ключевые файлы
+## Использование
 
-### prometheus.service.ts
-**Базовый сервис для работы с Prometheus метриками**:
-
-**constructor()** - инициализация
-- Использует глобальный Registry от `prom-client` (`register`)
-- Registry используется @willsoto/nestjs-prometheus для экспорта метрик
-
-**createCounter(config)** - создание Counter метрики
-- Параметры: `name`, `help`, `labelNames` (опционально)
-- Возвращает `Counter` из `prom-client`
-- Регистрирует метрику в глобальном Registry
-
-**createHistogram(config)** - создание Histogram метрики
-- Параметры: `name`, `help`, `labelNames` (опционально), `buckets` (опционально)
-- Возвращает `Histogram` из `prom-client`
-- Регистрирует метрику в глобальном Registry
-
-**createGauge(config)** - создание Gauge метрики
-- Параметры: `name`, `help`, `labelNames` (опционально)
-- Возвращает `Gauge` из `prom-client`
-- Регистрирует метрику в глобальном Registry
-
-**createSummary(config)** - создание Summary метрики
-- Параметры: `name`, `help`, `labelNames` (опционально), `percentiles` (опционально), `maxAgeSeconds` (опционально), `ageBuckets` (опционально)
-- Возвращает `Summary` из `prom-client`
-- Регистрирует метрику в глобальном Registry
-
-**getRegistry()** - получение Registry
-- Возвращает глобальный Registry для экспорта метрик
-
-### prometheus.module.ts
-**Global NestJS модуль**:
-
-**forRootAsync(options)** - регистрация модуля
-- `options.useFactory` - фабрика для создания `PrometheusModuleOptions`
-- `options.inject` - массив токенов для инжекции зависимостей (по умолчанию `[]`)
-- `options.imports` - массив модулей для импорта (опционально)
-- Создает провайдер `PROMETHEUS_MODULE_OPTIONS` через `useFactory`
-- Интегрируется с `NestPrometheusModule.registerAsync()` из @willsoto/nestjs-prometheus
-- Экспортирует `PrometheusService`, `HttpMetricsService`, `KafkaMetricsService`, `AiMetricsService`, `MetricRegistry`, `NestPrometheusModule`
-
-### http-metrics.service.ts
-**Сервис для работы с HTTP метриками**:
-
-**onModuleInit()** - инициализация метрик
-- Создает метрики: `http_requests_total`, `http_request_duration_seconds`, `http_request_size_bytes`, `http_response_size_bytes`, `http_errors_total`
-
-**recordHttpRequest()** - запись метрик для HTTP запроса
-- Параметры: `method`, `route`, `status`, `duration`, `requestSize` (опционально), `responseSize` (опционально), `controller` (опционально), `handler` (опционально)
-- Записывает все HTTP метрики
-
-**recordHttpError()** - запись метрик для HTTP ошибки
-- Параметры: `method`, `route`, `status`, `duration`, `error`
-- Записывает метрики ошибок и общие метрики запроса
-
-### kafka-metrics.service.ts
-**Сервис для работы с Kafka метриками**:
-
-**onModuleInit()** - инициализация метрик
-- Создает метрики: `kafka_messages_total`, `kafka_message_duration_seconds`, `kafka_errors_total`
-
-**recordKafkaMessage()** - запись метрик для обработанного Kafka сообщения
-- Параметры: `topic`, `commandType`, `status`, `duration`
-- Записывает метрики сообщений и длительности
-
-**recordKafkaError()** - запись метрик для ошибки обработки Kafka сообщения
-- Параметры: `topic`, `commandType`, `error`
-- Записывает метрики ошибок
-
-### ai-metrics.service.ts
-**Сервис для работы с AI метриками**:
-
-**onModuleInit()** - инициализация метрик
-- Создает метрики: `ai_stream_requests_total`, `ai_stream_duration_seconds`, `ai_stream_tokens_total`, `ai_requests_total`, `ai_request_duration_seconds`
-
-**recordAiStream()** - запись метрик для AI stream запроса
-- Параметры: `status`, `duration`, `tokens` (опционально)
-- Записывает метрики stream запросов и токенов
-
-**recordAiRequest()** - запись метрик для AI запроса
-- Параметры: `status`, `duration`, `tokens` (опционально), `model` (опционально)
-- Записывает метрики AI запросов и токенов
-
-### prometheus-http.interceptor.ts
-**HTTP интерцептор для автоматического сбора метрик**:
-
-**constructor()** - инициализация
-- Создает метрики: `http_requests_total`, `http_request_duration_seconds`, `http_request_size_bytes`, `http_response_size_bytes`
-- Настраивается через `httpMetrics` в `PrometheusModuleOptions`
-
-**intercept()** - перехват HTTP запросов
-- Извлекает информацию о запросе: `method`, `route`, `controller`, `handler`
-- Измеряет время выполнения и размер запроса/ответа
-- Записывает метрики в успешных и ошибочных случаях
-
-**shouldIgnore()** - проверка необходимости игнорирования запроса
-- Проверяет `ignorePaths` и `ignoreMethods` из конфигурации
-
-### metric-registry.ts
-**Реестр предопределенных метрик**:
-
-**onModuleInit()** - регистрация предопределенных метрик
-- Регистрирует метрики из `predefinedMetrics` в конфигурации модуля
-
-**getCounter()**, **getHistogram()**, **getGauge()**, **getSummary()** - получение метрик по имени
-- Возвращают предопределенные метрики или `undefined`
-
-**getAllMetrics()** - получение всех метрик
-- Возвращает объект с Map'ами всех типов метрик
-
-### metric-sets.ts
-**Предопределенные наборы метрик**:
-
-**createHttpMetricsSet()** - создание набора HTTP метрик
-- Возвращает объект типа `HttpMetricsSet` с метриками: `httpRequestsTotal`, `httpRequestDuration`, `httpRequestSize`, `httpResponseSize`, `httpErrorsTotal`
-- Интерфейс `HttpMetricsSet` определен в `types/metric-sets.interface.ts`
-
-**createKafkaMetricsSet()** - создание набора Kafka метрик
-- Возвращает объект типа `KafkaMetricsSet` с метриками: `kafkaMessagesTotal`, `kafkaMessageDuration`, `kafkaErrorsTotal`
-- Интерфейс `KafkaMetricsSet` определен в `types/metric-sets.interface.ts`
-
-**createDatabaseMetricsSet()** - создание набора Database метрик
-- Возвращает объект типа `DatabaseMetricsSet` с метриками: `databaseQueriesTotal`, `databaseQueryDuration`, `databaseConnectionsActive`, `databaseConnectionsIdle`, `databaseErrorsTotal`
-- Интерфейс `DatabaseMetricsSet` определен в `types/metric-sets.interface.ts`
-
-### metric-timer.ts
-**Утилита для измерения времени выполнения**:
-
-**MetricTimer** - класс для измерения времени
-- `end()` - завершить измерение и записать в Histogram метрику
-- `getElapsed()` - получить текущее время выполнения в миллисекундах
-- `getElapsedSeconds()` - получить текущее время выполнения в секундах
-
-**createMetricTimer()** - фабрика для создания таймера
-- Параметры: `histogram`, `labels` (опционально)
-- Возвращает экземпляр `MetricTimer`
-
-### metric-wrapper.ts
-**Обертка для функций с метриками**:
-
-**wrapWithMetrics()** - обернуть функцию для автоматического сбора метрик
-- Параметры: `fn` (функция), `options` (MetricWrapperOptions)
-- Опции: `counter`, `histogram`, `counterLabels`, `histogramLabels`, `onError`
-- Автоматически записывает метрики при вызове функции
-- Поддерживает синхронные и асинхронные функции
-- Интерфейс `MetricWrapperOptions` определен в `types/metric-wrapper.interface.ts`
-
-### metric-labels.ts
-**Утилиты для работы с метками**:
-
-**extractHttpLabels()** - извлечь метки из ExecutionContext для HTTP запросов
-- Возвращает объект с метками: `method`, `route`, `status`, `controller`, `handler`
-
-**extractRequestLabels()** - извлечь метки из объекта запроса
-- Возвращает объект с метками: `method`, `route`
-
-**createLabels()** - создать метки из объекта с фильтрацией
-- Параметры: `source` (объект), `keys` (массив ключей)
-- Возвращает объект с метками только для указанных ключей
-
-**mergeLabels()** - объединить несколько объектов меток
-- Параметры: `...labels` (массив объектов меток)
-- Возвращает объединенный объект меток
-
-### module-options.interface.ts
-Типы для конфигурации модуля:
-
-**PrometheusModuleOptions** - опции конфигурации:
-```typescript
-{
-  path?: string;              // Опционально: путь для экспорта метрик (по умолчанию "/metrics")
-  defaultMetrics?: boolean;    // Опционально: включить дефолтные метрики Node.js (по умолчанию true)
-  httpMetrics?: HttpMetricsOptions;  // Опционально: опции для HTTP метрик
-  predefinedMetrics?: PredefinedMetricsConfig;  // Опционально: предопределенные метрики
-}
-```
-
-**HttpMetricsOptions** - опции для HTTP метрик:
-```typescript
-{
-  enabled?: boolean;          // Включить сбор HTTP метрик (по умолчанию: true)
-  ignorePaths?: string[];     // Игнорировать определенные пути
-  ignoreMethods?: string[];    // Игнорировать определенные методы
-  durationBuckets?: number[]; // Buckets для гистограммы длительности запросов
-  requestSizeBuckets?: number[]; // Buckets для гистограммы размера запроса
-  responseSizeBuckets?: number[]; // Buckets для гистограммы размера ответа
-}
-```
-
-**PredefinedMetricsConfig** - конфигурация предопределенных метрик:
-```typescript
-{
-  counters?: CounterConfig[];     // Список Counter метрик
-  histograms?: HistogramConfig[]; // Список Histogram метрик
-  gauges?: GaugeConfig[];         // Список Gauge метрик
-  summaries?: SummaryConfig[];    // Список Summary метрик
-}
-```
-
-**PrometheusModuleAsyncOptions<T>** - опции для `forRootAsync`:
-```typescript
-{
-  useFactory: (...args: T) => PrometheusModuleOptions | Promise<PrometheusModuleOptions>;
-  inject?: (InjectionToken | OptionalFactoryDependency)[];
-  imports?: ModuleMetadata['imports'];
-}
-```
-
-### prometheus.interface.ts
-Интерфейс `PrometheusClientContract`:
-```typescript
-interface PrometheusClientContract {
-  createCounter<T extends string = string>(config: CounterConfig<T>): Counter<string>;
-  createHistogram<T extends string = string>(config: HistogramConfig<T>): Histogram<string>;
-  createGauge<T extends string = string>(config: GaugeConfig<T>): Gauge<string>;
-  createSummary<T extends string = string>(config: SummaryConfig<T>): Summary<string>;
-  getRegistry(): Registry;
-}
-```
-
-### metric-sets.interface.ts
-Интерфейсы для наборов метрик:
-- **HttpMetricsSet** - интерфейс набора HTTP метрик
-- **KafkaMetricsSet** - интерфейс набора Kafka метрик
-- **DatabaseMetricsSet** - интерфейс набора Database метрик
-
-### metric-wrapper.interface.ts
-Интерфейс опций для обертки функций:
-- **MetricWrapperOptions** - опции для функции `wrapWithMetrics()`
-  - `counter?: Counter` - Counter метрика для подсчета вызовов
-  - `histogram?: Histogram` - Histogram метрика для измерения времени
-  - `counterLabels?: Record<string, string> | (() => Record<string, string>)` - метки для Counter
-  - `histogramLabels?: Record<string, string> | (() => Record<string, string>)` - метки для Histogram
-  - `onError?: (error: Error) => void` - обработчик ошибок
-
-### prometheus-metric.interface.ts
-Интерфейс конфигурации декоратора метрик:
-- **PrometheusMetricConfig** - конфигурация для декоратора `@PrometheusMetric`
-  - `type: "counter" | "histogram" | "gauge" | "summary"` - тип метрики
-  - `name: string` - имя метрики
-  - `help: string` - описание метрики
-  - `labels?: string[]` - массив имен меток (опционально)
-  - `buckets?: number[]` - buckets для histogram (опционально)
-  - `percentiles?: number[]` - квантили для summary (опционально)
-
-### injection-keys.ts
-Injection tokens для DI:
-- `PROMETHEUS_MODULE_OPTIONS` - Symbol для injection token конфигурации модуля
-
-## Использование в коде
-
-### 1. Регистрация в AppModule
+### Регистрация в AppModule
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -405,7 +134,7 @@ import { PrometheusClientModule } from '@makebelieve21213-packages/prometheus-cl
 export class AppModule {}
 ```
 
-### 2. Подключение HTTP интерцептора
+### Подключение HTTP интерцептора
 
 ```typescript
 import { APP_INTERCEPTOR } from '@nestjs/core';
@@ -422,7 +151,7 @@ import { PrometheusHttpInterceptor } from '@makebelieve21213-packages/prometheus
 export class AppModule {}
 ```
 
-### 3. Использование специализированных сервисов
+### Использование специализированных сервисов
 
 ```typescript
 import { Injectable } from '@nestjs/common';
@@ -447,37 +176,14 @@ export default class MyService {
       this.httpMetrics.recordHttpError('GET', '/api/users', 500, duration, error);
     }
   }
-
-  async processKafkaMessage(topic: string, commandType: string) {
-    const startTime = Date.now();
-    try {
-      // Обработка сообщения
-      const duration = Date.now() - startTime;
-      this.kafkaMetrics.recordKafkaMessage(topic, commandType, 'success', duration);
-    } catch (error) {
-      this.kafkaMetrics.recordKafkaError(topic, commandType, error);
-    }
-  }
-
-  async processAiRequest(model: string) {
-    const startTime = Date.now();
-    try {
-      // AI запрос
-      const duration = Date.now() - startTime;
-      this.aiMetrics.recordAiRequest('success', duration, 100, model);
-    } catch (error) {
-      const duration = Date.now() - startTime;
-      this.aiMetrics.recordAiRequest('error', duration, 0, model);
-    }
-  }
 }
 ```
 
-### 4. Использование декораторов
+### Использование декораторов
 
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { TrackDuration, TrackCounter, PrometheusMetric } from '@makebelieve21213-packages/prometheus-client';
+import { TrackDuration, TrackCounter } from '@makebelieve21213-packages/prometheus-client';
 
 @Injectable()
 export default class MyService {
@@ -486,33 +192,18 @@ export default class MyService {
   async myMethod() {
     // Ваша логика
   }
-
-  @PrometheusMetric({
-    type: 'histogram',
-    name: 'custom_metric_seconds',
-    help: 'Custom metric description',
-    labels: ['method'],
-    buckets: [0.1, 0.5, 1, 2, 5],
-  })
-  async customMethod() {
-    // Ваша логика
-  }
 }
 ```
 
-### 5. Использование базового PrometheusService
+### Использование базового PrometheusService
 
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { PrometheusService } from '@makebelieve21213-packages/prometheus-client';
-import { Counter, Histogram, Gauge, Summary } from 'prom-client';
 
 @Injectable()
 export default class MetricsService {
   private readonly httpRequestCounter: Counter;
-  private readonly httpRequestDuration: Histogram;
-  private readonly activeConnections: Gauge;
-  private readonly requestSummary: Summary;
 
   constructor(private readonly prometheusService: PrometheusService) {
     this.httpRequestCounter = this.prometheusService.createCounter({
@@ -520,123 +211,26 @@ export default class MetricsService {
       help: 'Total number of HTTP requests',
       labelNames: ['method', 'route', 'status'],
     });
-
-    this.httpRequestDuration = this.prometheusService.createHistogram({
-      name: 'http_request_duration_seconds',
-      help: 'Duration of HTTP requests in seconds',
-      labelNames: ['method', 'route'],
-      buckets: [0.1, 0.5, 1, 2, 5],
-    });
-
-    this.activeConnections = this.prometheusService.createGauge({
-      name: 'active_connections',
-      help: 'Number of active connections',
-      labelNames: ['type'],
-    });
-
-    this.requestSummary = this.prometheusService.createSummary({
-      name: 'request_summary_seconds',
-      help: 'Request duration summary',
-      labelNames: ['method'],
-      percentiles: [0.5, 0.9, 0.99],
-    });
   }
-
-  recordHttpRequest(method: string, route: string, status: number, duration: number): void {
-    this.httpRequestCounter.inc({ method, route, status: status.toString() });
-    this.httpRequestDuration.observe({ method, route }, duration);
-    this.requestSummary.observe({ method }, duration);
-  }
-
-  setActiveConnections(type: string, count: number): void {
-    this.activeConnections.set({ type }, count);
-  }
-}
-```
-
-### 6. Использование предопределенных наборов метрик
-
-```typescript
-import {
-  createHttpMetricsSet,
-  createKafkaMetricsSet,
-  createDatabaseMetricsSet,
-} from '@makebelieve21213-packages/prometheus-client';
-
-const httpMetrics = createHttpMetricsSet(prometheusService);
-const kafkaMetrics = createKafkaMetricsSet(prometheusService);
-const dbMetrics = createDatabaseMetricsSet(prometheusService);
-
-// Использование
-httpMetrics.httpRequestsTotal.inc({ method: 'GET', route: '/api/users', status: '200', controller: 'UserController', handler: 'getUsers' });
-const timer = httpMetrics.httpRequestDuration.startTimer({ method: 'GET', route: '/api/users', controller: 'UserController', handler: 'getUsers' });
-// ... выполнение запроса
-timer();
-```
-
-### 7. Использование утилит
-
-```typescript
-import {
-  createMetricTimer,
-  wrapWithMetrics,
-  extractHttpLabels,
-  extractRequestLabels,
-  createLabels,
-  mergeLabels,
-} from '@makebelieve21213-packages/prometheus-client';
-
-// MetricTimer
-const timer = createMetricTimer(histogram, { method: 'GET', route: '/api/users' });
-// ... выполнение кода
-timer.end();
-
-// wrapWithMetrics
-const wrappedFunction = wrapWithMetrics(myFunction, {
-  counter: myCounter,
-  histogram: myHistogram,
-  counterLabels: { service: 'my-service' },
-  histogramLabels: { method: 'process' },
-});
-
-// Работа с метками
-const labels = extractHttpLabels(context);
-const requestLabels = extractRequestLabels(request);
-const customLabels = createLabels({ method: 'GET', status: '200' }, ['method', 'status']);
-const merged = mergeLabels(labels1, labels2, labels3);
-```
-
-### 8. Использование MetricRegistry
-
-```typescript
-import { MetricRegistry } from '@makebelieve21213-packages/prometheus-client';
-
-constructor(private readonly metricRegistry: MetricRegistry) {}
-
-// Получить предопределенную метрику
-const counter = this.metricRegistry.getCounter('custom_counter_total');
-if (counter) {
-  counter.inc({ service: 'my-service' });
 }
 ```
 
 ## Важные детали реализации
-
-### Глобальный Registry
-- Используется глобальный Registry от `prom-client` (`register`)
-- Это гарантирует совместимость с @willsoto/nestjs-prometheus
-- Все метрики автоматически экспортируются на `/metrics` endpoint
 
 ### Global Module
 - PrometheusClientModule помечен как `@Global()`
 - Регистрируется один раз в AppModule
 - Доступен во всех модулях без повторного импорта
 
+### Глобальный Registry
+- Используется глобальный Registry от `prom-client` (`register`)
+- Это гарантирует совместимость с @willsoto/nestjs-prometheus
+- Все метрики автоматически экспортируются на `/metrics` endpoint
+
 ### Инициализация метрик
 - Метрики создаются в конструкторе сервиса через `PrometheusService`
 - Специализированные сервисы создают метрики в `onModuleInit()`
 - Метрики регистрируются в глобальном Registry автоматически
-- Метрики доступны сразу после создания
 
 ### Экспорт метрик
 - Метрики автоматически экспортируются на `/metrics` endpoint через @willsoto/nestjs-prometheus
@@ -647,57 +241,50 @@ if (counter) {
 - Автоматически собирает метрики для всех HTTP запросов
 - Настраивается через `httpMetrics` в `PrometheusModuleOptions`
 - Поддерживает игнорирование путей и методов через `ignorePaths` и `ignoreMethods`
-- Измеряет время выполнения, размер запроса и ответа
 
-### Специализированные сервисы
-- Автоматически создают метрики при инициализации модуля
-- Предоставляют готовые методы для записи метрик
-- Упрощают работу с метриками в приложении
+## Экспорты (index.ts)
 
-### Реестр метрик
-- Управляет предопределенными метриками через `predefinedMetrics` в конфигурации
-- Метрики регистрируются при инициализации модуля
-- Доступны через методы `getCounter()`, `getHistogram()`, `getGauge()`, `getSummary()`
+Пакет экспортирует:
+- `PrometheusClientModule` (default export)
+- `PrometheusService`
+- `HttpMetricsService`
+- `KafkaMetricsService`
+- `AiMetricsService`
+- `PrometheusHttpInterceptor`
+- `MetricRegistry`
+- Декораторы: `TrackDuration`, `TrackCounter`, `PrometheusMetric`
+- Утилиты: `createMetricTimer`, `wrapWithMetrics`, `extractHttpLabels`, `createHttpMetricsSet`, `createKafkaMetricsSet`, `createDatabaseMetricsSet`
+- Типы: `PrometheusModuleOptions`, `PrometheusClientContract`, `HttpMetricsSet`, `KafkaMetricsSet`, `DatabaseMetricsSet`
 
-### Алиасы src/*
-- Используются в исходном коде через `tsconfig.json` paths
-- После сборки заменяются на относительные пути через `tsc-alias`
-- Работают и в dev, и в production
+## Типичные сценарии использования
 
-### Сборка ESM пакета
-Процесс сборки включает три этапа:
-1. **tsc --build** - компиляция TypeScript в JavaScript
-2. **tsc-alias** - замена алиасов `src/*` на относительные пути
-3. **tsc-esm-fix** - добавление `.js` расширений к импортам для корректной работы ESM
+### Базовое использование
+1. Импортировать `PrometheusClientModule.forRootAsync()` в AppModule
+2. Подключить `PrometheusHttpInterceptor` как `APP_INTERCEPTOR` (опционально)
+3. Инжектировать `PrometheusService` или специализированные сервисы в сервисы
+4. Использовать метрики через методы `inc()`, `observe()`, `set()` и т.д.
 
-Это стандартный подход для ESM пакетов, когда используется TypeScript компилятор без bundler'а.
+### С автоматическим сбором HTTP метрик
+1. Подключить `PrometheusHttpInterceptor` как `APP_INTERCEPTOR`
+2. Настроить `httpMetrics` в конфигурации модуля
+3. Метрики будут собираться автоматически
 
-## Тестирование
+### С декораторами
+1. Использовать `@TrackDuration` и `@TrackCounter` для автоматического трекинга
+2. Использовать `@PrometheusMetric` для кастомных метрик
 
-### Покрытие тестами
-- Все компоненты имеют 100% покрытие тестами
-- Тесты используют Jest framework
-- Моки для prom-client и NestJS компонентов
+## Важные замечания
 
-### Моки для тестирования
-```typescript
-const mockPrometheusService = {
-  createCounter: jest.fn(),
-  createHistogram: jest.fn(),
-  createGauge: jest.fn(),
-  createSummary: jest.fn(),
-  getRegistry: jest.fn(),
-};
-```
-
-### Алиасы в тестах
-- Используются через `moduleNameMapper` в Jest
-- `"^src/(.*)$": "<rootDir>/src/$1"`
+1. **Global Module**: Регистрируется один раз в AppModule
+2. **Глобальный Registry**: Используется глобальный Registry от prom-client
+3. **Автоматический экспорт**: Метрики автоматически экспортируются на `/metrics` endpoint
+4. **HTTP Интерцептор**: Автоматически собирает метрики для всех HTTP запросов
+5. **Специализированные сервисы**: Упрощают работу с метриками в приложении
+6. **Декораторы**: Упрощают трекинг методов
 
 ## Зависимости
 
-### Основные
-- `@nestjs/common` - NestJS декораторы и интерфейсы
+- `@nestjs/common` - NestJS decorators и интерфейсы
 - `@willsoto/nestjs-prometheus` - интеграция Prometheus с NestJS
 - `prom-client` - клиент для Prometheus метрик
 - `reflect-metadata` - для декораторов
@@ -708,143 +295,3 @@ const mockPrometheusService = {
 - `prom-client` ^15.0.0
 - `reflect-metadata` ^0.1.13 || ^0.2.0
 - `rxjs` ^7.8.0
-
-## Частые проблемы и решения
-
-1. **Метрики не экспортируются на /metrics**
-   - Проверьте, что PrometheusClientModule зарегистрирован в AppModule
-   - Убедитесь, что используется глобальный Registry (по умолчанию)
-   - Проверьте путь `/metrics` в конфигурации
-
-2. **Метрики не создаются**
-   - Убедитесь, что PrometheusService инжектирован через DI NestJS
-   - Проверьте, что метрики создаются в конструкторе сервиса или в `onModuleInit()`
-
-3. **HTTP метрики не собираются**
-   - Убедитесь, что `PrometheusHttpInterceptor` подключен как `APP_INTERCEPTOR`
-   - Проверьте, что `httpMetrics.enabled` не установлен в `false`
-
-4. **Тесты падают**
-   - Убедитесь, что prom-client правильно замокан
-   - Проверьте, что `moduleNameMapper` настроен для `src/*` алиасов
-
-5. **Проблемы с алиасами после сборки**
-   - Убедитесь, что установлен `tsc-alias` и запускается после `tsc --build`
-   - Проверьте, что в `tsconfig.json` настроены paths: `"src/*": ["src/*"]`
-
-6. **Проблемы с ESM импортами**
-   - Убедитесь, что `tsc-esm-fix` запускается после `tsc-alias`
-   - Проверьте, что в `package.json` указано `"type": "module"`
-   - Убедитесь, что все импорты в собранных файлах имеют расширение `.js`
-
-## Расширение функциональности
-
-### Добавление нового типа метрики
-1. Добавьте метод в `PrometheusClientContract` интерфейс
-2. Реализуйте метод в `PrometheusService`
-3. Добавьте тесты в `prometheus.service.spec.ts`
-
-### Добавление нового специализированного сервиса
-1. Создайте новый сервис в `src/services/`
-2. Реализуйте `OnModuleInit` для создания метрик
-3. Добавьте методы для записи метрик
-4. Зарегистрируйте сервис в `PrometheusClientModule`
-5. Добавьте тесты
-
-### Добавление нового декоратора
-1. Создайте новый декоратор в `src/decorators/`
-2. Используйте `SetMetadata` для установки метаданных
-3. Добавьте тесты
-
-### Добавление нового набора метрик
-1. Добавьте функцию в `metric-sets.ts`
-2. Создайте интерфейс для набора метрик
-3. Добавьте тесты
-
-## Для кодогенерации
-
-При генерации кода, использующего этот пакет:
-1. Всегда импортируйте напрямую классы и функции из пакета
-2. Используйте интерфейс `PrometheusClientContract` для типизации (опционально)
-3. Создавайте метрики в конструкторе сервиса или в `onModuleInit()`
-4. Используйте метрики через методы `inc()`, `observe()`, `set()` и т.д.
-5. Всегда регистрируйте через `PrometheusClientModule.forRootAsync()`
-6. Настраивайте через `PrometheusModuleOptions` с опциональными параметрами
-7. Для автоматического сбора HTTP метрик используйте `PrometheusHttpInterceptor` как `APP_INTERCEPTOR`
-8. Используйте специализированные сервисы (`HttpMetricsService`, `KafkaMetricsService`, `AiMetricsService`) для упрощения работы с метриками
-9. Используйте декораторы (`@TrackDuration`, `@TrackCounter`, `@PrometheusMetric`) для автоматического трекинга
-10. Используйте утилиты (`createMetricTimer`, `wrapWithMetrics`, `extractHttpLabels` и т.д.) для работы с метриками
-
-## Пример полной настройки
-
-**AppModule:**
-```typescript
-import { Module } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import {
-  PrometheusClientModule,
-  PrometheusHttpInterceptor,
-} from '@makebelieve21213-packages/prometheus-client';
-
-@Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    PrometheusClientModule.forRootAsync<[ConfigService]>({
-      useFactory: (configService: ConfigService) => ({
-        path: configService.get('PROMETHEUS_METRICS_PATH') || '/metrics',
-        defaultMetrics: configService.get('PROMETHEUS_DEFAULT_METRICS') !== 'false',
-        httpMetrics: {
-          enabled: true,
-          ignorePaths: ['/metrics', '/health'],
-          ignoreMethods: ['OPTIONS'],
-        },
-      }),
-      inject: [ConfigService],
-    }),
-  ],
-  providers: [
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: PrometheusHttpInterceptor,
-    },
-  ],
-})
-export class AppModule {}
-```
-
-**Сервис:**
-```typescript
-import { Injectable } from '@nestjs/common';
-import {
-  HttpMetricsService,
-  KafkaMetricsService,
-  AiMetricsService,
-  TrackDuration,
-  TrackCounter,
-} from '@makebelieve21213-packages/prometheus-client';
-
-@Injectable()
-export default class MyService {
-  constructor(
-    private readonly httpMetrics: HttpMetricsService,
-    private readonly kafkaMetrics: KafkaMetricsService,
-    private readonly aiMetrics: AiMetricsService,
-  ) {}
-
-  @TrackDuration('my_method_duration_seconds', { service: 'my-service' })
-  @TrackCounter('my_method_calls_total', { service: 'my-service' })
-  async process(): Promise<void> {
-    const startTime = Date.now();
-    try {
-      // logic
-      const duration = Date.now() - startTime;
-      this.httpMetrics.recordHttpRequest('GET', '/api/process', 200, duration);
-    } catch (error) {
-      const duration = Date.now() - startTime;
-      this.httpMetrics.recordHttpError('GET', '/api/process', 500, duration, error);
-      throw error;
-    }
-  }
-}
-```

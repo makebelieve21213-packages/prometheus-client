@@ -24,10 +24,7 @@ coverage/
 llms.txt
 
 # Тесты и тестовые файлы
-**/*.test.ts
-**/*.test.tsx
 **/*.spec.ts
-**/*.spec.tsx
 **/__tests__/
 **/__mocks__/
 jest.config.ts
